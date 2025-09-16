@@ -11,23 +11,9 @@ This project is designed to help you learn:
 - **API design** - Building a clean, type-safe GraphQL API
 - **Real-world patterns** - Practical GraphQL implementation patterns
 
-## ??? Project Structure
 
-```
-LibraryGraphQL/
-??? Data/
-?   ??? LibraryContext.cs      # Entity Framework DbContext
-??? Models/
-?   ??? Author.cs              # Author entity model
-?   ??? Book.cs                # Book entity model
-??? GraphQL/
-?   ??? Query.cs               # GraphQL query operations
-?   ??? Mutation.cs            # GraphQL mutation operations
-??? Program.cs                 # Application startup and configuration
-??? appsettings.json           # Application configuration
-```
 
-## ?? Getting Started
+## Getting Started
 
 ### Prerequisites
 
