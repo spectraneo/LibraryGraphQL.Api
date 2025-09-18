@@ -7,24 +7,35 @@ public class Mutation
 {
     public async Task<Book> AddBook(string title, int authorId, [Service] LibraryContext context)
     {
-        if (!await context.Authors.AnyAsync(a => a.Id == authorId))
-            throw new Exception("Author not found");
+        // Input validation
+        if (string.IsNullOrWhiteSpace(title))
+            throw new ArgumentException("Book title cannot be empty");
 
-        var book = new Book { Title = title, AuthorId = authorId };
+        if (!await context.Authors.AnyAsync(a => a.Id == authorId))
+            throw new InvalidOperationException($"Author with ID {authorId} not found ");
+
+        var book = new Book { Title = title.Trim(), AuthorId = authorId };
         context.Books.Add(book);
         await context.SaveChangesAsync();
 
-        // ensure Author is populated (non-null)
+        // Return book with populated Author
         return await context.Books
             .Include(b => b.Author)
-            .FirstAsync(b=> b.Id == book.Id);
+            .FirstAsync(b => b.Id == book.Id);
     }
 
     public async Task<Book> UpdateBook(int id, string title, [Service] LibraryContext context)
     {
+
+        if (string.IsNullOrWhiteSpace(title))
+            throw new ArgumentException("Book tittle cannot be empty");
+
         var book = await context.Books.FindAsync(id);
-        if (book == null) throw new Exception("No book found");
-        book.Title = title;
+
+        if (book == null)
+            throw new InvalidOperationException($"Book with ID {id} not found");
+
+        book.Title = title.Trim();
         await context.SaveChangesAsync();
 
         // ensure Author is populated (non-null) 
@@ -35,7 +46,7 @@ public class Mutation
 
     public async Task<bool> DeleteBook(int id, [Service] LibraryContext context)
     {
-        var book = context.Books.Find(id);
+        var book = await context.Books.FindAsync(id);
         if (book == null) return false;
         context.Books.Remove(book);
         await context.SaveChangesAsync();
@@ -45,7 +56,9 @@ public class Mutation
     /*Authors*/
     public async Task<Author> AddAuthor(string name, [Service] LibraryContext context)
     {
-        var author = new Author { Name = name };
+        if (string.IsNullOrWhiteSpace(name))
+            throw new ArgumentException("Author name cannot be empty");
+        var author = new Author { Name = name.Trim() };
         context.Authors.Add(author);
         await context.SaveChangesAsync();
         return author;
@@ -53,9 +66,12 @@ public class Mutation
 
     public async Task<Author> UpdateAuthor(int id, string name, [Service] LibraryContext context)
     {
+        if (string.IsNullOrWhiteSpace(name))
+            throw new ArgumentException("Author name cannot be empty");
         var author = await context.Authors.FindAsync(id);
-        if (author == null) throw new Exception("No Author Found");
-        author.Name = name;
+        if (author == null) 
+            throw new InvalidOperationException($"Author with ID {id} not found.");
+        author.Name = name.Trim();
         await context.SaveChangesAsync();
         return author;
     }
@@ -63,10 +79,10 @@ public class Mutation
     public async Task<bool> DeleteAuthor(int id, [Service] LibraryContext context)
     {
         var author = await context.Authors.FindAsync(id);
-        if (author == null) return false; 
+        if (author == null) return false;
         context.Authors.Remove(author);
         await context.SaveChangesAsync();
-        return true; 
+        return true;
     }
 
 }
